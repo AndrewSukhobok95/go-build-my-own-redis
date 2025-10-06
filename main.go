@@ -5,6 +5,7 @@ import (
 	"net"
 	"log"
 	"io"
+	"strings"
 )
 
 func main() {
@@ -18,7 +19,8 @@ func main() {
 		conn, err := ln.Accept()
 		
 		if err != nil {
-			log.Fatalln(err)
+			log.Println("accept error:", err)
+			continue
 		}
 
 		go handleConnection(conn)
@@ -27,12 +29,11 @@ func main() {
 
 func handleConnection(conn net.Conn) {
     defer conn.Close()
-
     fmt.Println("Accepted connection from", conn.RemoteAddr())
 
-	buf := make([]byte, 1024)
+	resp := NewResp(conn)
 	for {
-		n, err := conn.Read(buf)
+		v, err := resp.Read()
 		if err == io.EOF {
 			fmt.Println("Connection closed by", conn.RemoteAddr())
 			return
@@ -41,7 +42,9 @@ func handleConnection(conn net.Conn) {
 			log.Println("Error reading from connection:", err)
 			return
 		}
-		fmt.Printf("Received: %s\n", string(buf[:n]))
+		cmd, args, err := parseCommand(v)
+
+		fmt.Printf("Received: %s %s\n", cmd, strings.Join(args, " "))
 		conn.Write([]byte("+OK\r\n"))
 	}
 }
