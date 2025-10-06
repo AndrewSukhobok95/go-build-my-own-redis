@@ -1,0 +1,129 @@
+package main
+
+import (
+	"fmt"
+	"bufio"
+	"io"
+	"strconv"
+)
+
+const (
+	STRING  = '+'
+	ERROR   = '-'
+	INTEGER = ':'
+	BULK    = '$'
+	ARRAY   = '*'
+)
+
+type Value struct {
+	typ   string
+	str   string
+	num   int
+	bulk  string
+	array []Value
+}
+
+func parseCommand(v Value) (cmd string, args []string, err error) {
+	if v.typ != "array" {
+		return "", nil, fmt.Errorf("invalid RESP type: %s", v.typ)
+	}
+	if len(v.array) == 0 {
+		return "", nil, fmt.Errorf("empty command")
+	}
+	cmd = v.array[0].bulk
+	for i:=1; i<len(v.array); i++ {
+		args = append(args, v.array[i].bulk)
+	}
+	return cmd, args, nil
+}
+
+type Resp struct {
+	reader *bufio.Reader
+}
+
+func NewResp(rd io.Reader) *Resp {
+	return &Resp{reader: bufio.NewReader(rd)}
+}
+
+func (r *Resp) readLine() (line []byte, n int, err error) {
+	var b byte
+	for {
+		b, err = r.reader.ReadByte()
+		if err != nil {
+			return line, n, err
+		}
+		n++
+		line = append(line, b)
+		if len(line) >= 2 && line[len(line)-2] == '\r' && line[len(line)-1] == '\n' {
+			line = line[:len(line)-2]
+			return line, n, nil
+		}
+	}
+}
+
+
+func (r *Resp) readInteger() (x int64, n int, err error) {
+	line, n, err := r.readLine()
+	if err != nil {
+		return 0, n, err
+	}
+	s := string(line)
+	x, err = strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return 0, n, err
+	}
+	return x, n, nil
+}
+
+func (r *Resp) readBulk() (Value, error) {
+	x, _, err := r.readInteger()
+	if err != nil {
+		return Value{}, err
+	}
+	if x < 0 {
+		return Value{typ: "bulk", bulk: ""}, nil
+	}
+	s := make([]byte, x+2)
+	_, err = io.ReadFull(r.reader, s)
+	if err != nil {
+		return Value{}, err
+	}
+	return Value{typ: "bulk", bulk: string(s[:len(s)-2])}, nil
+}
+
+func (r *Resp) readArray() (Value, error) {
+	x, _, err := r.readInteger()
+	if err != nil {
+		return Value{}, err
+	}
+	if x == -1 {
+		return Value{typ: "array", array: nil}, nil
+	}
+	if x < -1 {
+		return Value{}, fmt.Errorf("invalid array length: %d", x)
+	}
+	array := make([]Value, 0, x)
+	for i:=int64(0); i<x; i++ {
+		v, err := r.Read()
+		if err != nil {
+			return Value{}, err
+		}
+		array = append(array, v)
+	}
+	return Value{typ: "array", array: array}, nil
+}
+
+func (r *Resp) Read() (Value, error) {
+	b, err := r.reader.ReadByte()
+	if err != nil {
+		return Value{}, err
+	}
+	switch b {
+	case BULK:
+		return r.readBulk()
+	case ARRAY:
+		return r.readArray()
+	default:
+        return Value{}, fmt.Errorf("unknown RESP type: %q", b)
+	}
+}
