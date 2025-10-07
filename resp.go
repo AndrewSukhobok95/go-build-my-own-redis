@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,43 +25,48 @@ type Value struct {
 }
 
 func (v Value) marshalString() []byte {
-	bytes := []byte{'+'}
-	bytes = append(bytes, v.str...)
-	bytes = append(bytes, "\r\n"...)
-	return bytes
+	var b bytes.Buffer
+	b.WriteByte('+')
+	b.WriteString(v.str)
+	b.WriteString("\r\n")
+	return b.Bytes()
 }
 
 func (v Value) marshalInteger() []byte {
-	bytes := []byte{':'}
-	bytes = append(bytes, strconv.Itoa(v.num)...)
-	bytes = append(bytes, "\r\n"...)
-	return bytes
+	var b bytes.Buffer
+	b.WriteByte(':')
+	b.WriteString(strconv.Itoa(v.num))
+	b.WriteString("\r\n")
+	return b.Bytes()
 }
 
 func (v Value) marshalError() []byte {
-	bytes := []byte{'-'}
-	bytes = append(bytes, v.str...)
-	bytes = append(bytes, "\r\n"...)
-	return bytes
+	var b bytes.Buffer
+	b.WriteByte('-')
+	b.WriteString(v.str)
+	b.WriteString("\r\n")
+	return b.Bytes()
 }
 
 func (v Value) marshalBulk() []byte {
-	bytes := []byte{'$'}
-	bytes = append(bytes, strconv.Itoa(len(v.bulk))...)
-	bytes = append(bytes, "\r\n"...)
-	bytes = append(bytes, v.bulk...)
-	bytes = append(bytes, "\r\n"...)
-	return bytes
+	var b bytes.Buffer
+	b.WriteByte('$')
+	b.WriteString(strconv.Itoa(len(v.bulk)))
+	b.WriteString("\r\n")
+	b.WriteString(v.bulk)
+	b.WriteString("\r\n")
+	return b.Bytes()
 }
 
 func (v Value) marshalArray() []byte {
-	bytes := []byte{'*'}
-	bytes = append(bytes, strconv.Itoa(len(v.array))...)
-	bytes = append(bytes, "\r\n"...)
-	for i := 0; i < len(v.array); i++ {
-		bytes = append(bytes, v.array[i].Marshal()...)
+	var b bytes.Buffer
+	b.WriteByte('*')
+	b.WriteString(strconv.Itoa(len(v.array)))
+	b.WriteString("\r\n")
+	for _, elem := range v.array {
+		b.Write(elem.Marshal())
 	}
-	return bytes
+	return b.Bytes()
 }
 
 func (v Value) Marshal() []byte {
