@@ -58,6 +58,14 @@ func (v Value) marshalBulk() []byte {
 	return b.Bytes()
 }
 
+func (v Value) marshalNull() []byte {
+	var b bytes.Buffer
+	b.WriteByte('$')
+	b.WriteString("-1")
+	b.WriteString("\r\n")
+	return b.Bytes()
+}
+
 func (v Value) marshalArray() []byte {
 	var b bytes.Buffer
 	b.WriteByte('*')
@@ -81,6 +89,8 @@ func (v Value) Marshal() []byte {
 		return v.marshalInteger()
 	case "error":
 		return v.marshalError()
+	case "null":
+		return v.marshalNull()
 	default:
 		return nil
 	}

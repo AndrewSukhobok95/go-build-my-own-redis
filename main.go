@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, storage *Storage) {
 	defer conn.Close()
 	fmt.Println("Accepted connection from", conn.RemoteAddr())
 
@@ -32,13 +32,15 @@ func handleConnection(conn net.Conn) {
 		}
 
 		fmt.Printf("Received: %s %s\n", cmd, strings.Join(args, " "))
-		answerValue := handleCommand(cmd, args)
+		answerValue := handleCommand(cmd, args, storage)
 		writer.Write(answerValue)
 	}
 }
 
 func main() {
 	fmt.Println("Starting MyRedis server...")
+
+	storage := NewStorage()
 
 	ln, err := net.Listen("tcp", ":6380")
 	if err != nil {
@@ -52,6 +54,6 @@ func main() {
 			continue
 		}
 
-		go handleConnection(conn)
+		go handleConnection(conn, storage)
 	}
 }

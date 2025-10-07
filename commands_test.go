@@ -68,7 +68,75 @@ func TestHandleEcho(t *testing.T) {
 	}
 }
 
+func TestHandleSet(t *testing.T) {
+	storage := NewStorage()
+
+	tests := []struct {
+		name string
+		args []string
+		want Value
+	}{
+		{
+			name: "SET with two arguments",
+			args: []string{"foo", "bar"},
+			want: Value{typ: "string", str: "OK"},
+		},
+		{
+			name: "SET with one argument",
+			args: []string{"foo"},
+			want: Value{typ: "error", str: "ERR wrong number of arguments, two are expected"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := handleSet(tt.args, storage)
+			if got.typ != tt.want.typ || got.str != tt.want.str || got.bulk != tt.want.bulk {
+				t.Errorf("handleSet(%v) = %+v, want %+v", tt.args, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHandleGet(t *testing.T) {
+	storage := NewStorage()
+	storage.Set("foo", "bar")
+
+	tests := []struct {
+		name string
+		args []string
+		want Value
+	}{
+		{
+			name: "GET existing key",
+			args: []string{"foo"},
+			want: Value{typ: "bulk", bulk: "bar"},
+		},
+		{
+			name: "GET non-existing key",
+			args: []string{"baz"},
+			want: Value{typ: "null"},
+		},
+		{
+			name: "GET with no arguments",
+			args: []string{},
+			want: Value{typ: "error", str: "ERR wrong number of arguments, one is expected"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := handleGet(tt.args, storage)
+			if got.typ != tt.want.typ || got.str != tt.want.str || got.bulk != tt.want.bulk {
+				t.Errorf("handleGet(%v) = %+v, want %+v", tt.args, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestHandleCommand(t *testing.T) {
+	storage := NewStorage()
+
 	tests := []struct {
 		name string
 		cmd  string
@@ -103,7 +171,7 @@ func TestHandleCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := handleCommand(tt.cmd, tt.args)
+			got := handleCommand(tt.cmd, tt.args, storage)
 			if got.typ != tt.want.typ || got.str != tt.want.str || got.bulk != tt.want.bulk {
 				t.Errorf("handleCommand(%q, %v) = %+v, want %+v", tt.cmd, tt.args, got, tt.want)
 			}
