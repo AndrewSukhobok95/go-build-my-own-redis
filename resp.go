@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"bufio"
+	"fmt"
 	"io"
 	"strconv"
 )
@@ -23,6 +23,63 @@ type Value struct {
 	array []Value
 }
 
+func (v Value) marshalString() []byte {
+	bytes := []byte{'+'}
+	bytes = append(bytes, v.str...)
+	bytes = append(bytes, "\r\n"...)
+	return bytes
+}
+
+func (v Value) marshalInteger() []byte {
+	bytes := []byte{':'}
+	bytes = append(bytes, strconv.Itoa(v.num)...)
+	bytes = append(bytes, "\r\n"...)
+	return bytes
+}
+
+func (v Value) marshalError() []byte {
+	bytes := []byte{'-'}
+	bytes = append(bytes, v.str...)
+	bytes = append(bytes, "\r\n"...)
+	return bytes
+}
+
+func (v Value) marshalBulk() []byte {
+	bytes := []byte{'$'}
+	bytes = append(bytes, strconv.Itoa(len(v.bulk))...)
+	bytes = append(bytes, "\r\n"...)
+	bytes = append(bytes, v.bulk...)
+	bytes = append(bytes, "\r\n"...)
+	return bytes
+}
+
+func (v Value) marshalArray() []byte {
+	bytes := []byte{'*'}
+	bytes = append(bytes, strconv.Itoa(len(v.array))...)
+	bytes = append(bytes, "\r\n"...)
+	for i := 0; i < len(v.array); i++ {
+		bytes = append(bytes, v.array[i].Marshal()...)
+	}
+	return bytes
+}
+
+func (v Value) Marshal() []byte {
+	switch v.typ {
+	case "bulk":
+		return v.marshalBulk()
+	case "array":
+		return v.marshalArray()
+	case "string":
+		return v.marshalString()
+	case "integer":
+		return v.marshalInteger()
+	case "error":
+		return v.marshalError()
+	default:
+		return nil
+	}
+}
+
 func parseCommand(v Value) (cmd string, args []string, err error) {
 	if v.typ != "array" {
 		return "", nil, fmt.Errorf("invalid RESP type: %s", v.typ)
@@ -31,7 +88,7 @@ func parseCommand(v Value) (cmd string, args []string, err error) {
 		return "", nil, fmt.Errorf("empty command")
 	}
 	cmd = v.array[0].bulk
-	for i:=1; i<len(v.array); i++ {
+	for i := 1; i < len(v.array); i++ {
 		args = append(args, v.array[i].bulk)
 	}
 	return cmd, args, nil
@@ -60,7 +117,6 @@ func (r *Resp) readLine() (line []byte, n int, err error) {
 		}
 	}
 }
-
 
 func (r *Resp) readInteger() (x int64, n int, err error) {
 	line, n, err := r.readLine()
@@ -103,7 +159,7 @@ func (r *Resp) readArray() (Value, error) {
 		return Value{}, fmt.Errorf("invalid array length: %d", x)
 	}
 	array := make([]Value, 0, x)
-	for i:=int64(0); i<x; i++ {
+	for i := int64(0); i < x; i++ {
 		v, err := r.Read()
 		if err != nil {
 			return Value{}, err
@@ -124,6 +180,20 @@ func (r *Resp) Read() (Value, error) {
 	case ARRAY:
 		return r.readArray()
 	default:
-        return Value{}, fmt.Errorf("unknown RESP type: %q", b)
+		return Value{}, fmt.Errorf("unknown RESP type: %q", b)
 	}
+}
+
+type Writer struct {
+	writer io.Writer
+}
+
+func NewWriter(w io.Writer) *Writer {
+	return &Writer{writer: w}
+}
+
+func (w *Writer) Write(v Value) error {
+	bytes := v.Marshal()
+	_, err := w.writer.Write(bytes)
+	return err
 }
