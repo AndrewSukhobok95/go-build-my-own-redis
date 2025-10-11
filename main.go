@@ -2,58 +2,23 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"log"
-	"net"
-	"strings"
+	"os"
+	"os/signal"
+	"syscall"
 )
-
-func handleConnection(conn net.Conn, storage *Storage) {
-	defer conn.Close()
-	fmt.Println("Accepted connection from", conn.RemoteAddr())
-
-	resp := NewResp(conn)
-	writer := NewWriter(conn)
-	for {
-		v, err := resp.Read()
-		if err == io.EOF {
-			fmt.Println("Connection closed by", conn.RemoteAddr())
-			return
-		}
-		if err != nil {
-			log.Println("Error reading from connection:", err)
-			return
-		}
-
-		cmd, args, err := parseCommand(v)
-		if err != nil {
-			log.Println("Error parsing the command:", err)
-			return
-		}
-
-		fmt.Printf("Received: %s %s\n", cmd, strings.Join(args, " "))
-		answerValue := handleCommand(cmd, args, storage)
-		writer.Write(answerValue)
-	}
-}
 
 func main() {
 	fmt.Println("Starting MyRedis server...")
 
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+
 	storage := NewStorage()
+	server := NewServer("6380", storage)
 
-	ln, err := net.Listen("tcp", ":6380")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	for {
-		conn, err := ln.Accept()
+	go server.Start()
 
-		if err != nil {
-			log.Println("accept error:", err)
-			continue
-		}
-
-		go handleConnection(conn, storage)
-	}
+	<-stop
+	fmt.Println("\nShutting down gracefully...")
+	server.Shutdown()
 }
