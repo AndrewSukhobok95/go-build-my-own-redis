@@ -20,10 +20,11 @@ Steps for bulding my Redis:
 1. Simple server
 2. RESP parser
 3. Value Marshal and Writer
-4. Add simple commands (PING, ECHO)
+4. Add simple commands PING, ECHO
 5. Add simple storage
 6. Add SET and GET commands
-7. Added Server and Graceful shutdown
+7. Add Server and Graceful shutdown
+8. Add commands DEL, TYPE, EXISTS, KEYS, FLUSHDB
 
 ## Task Plan
 
@@ -41,11 +42,11 @@ Steps for bulding my Redis:
 |  | PING | ✅ |  |
 |  | SET | ✅ |  |
 |  | GET | ✅ |  |
-|  | DEL | ☐ | Delete one or more keys |
-|  | TYPE | ☐ | Return stored value type |
-|  | EXISTS | ☐ | Check if key exists |
-|  | KEYS | ☐ | Pattern matching (use `path.Match`) |
-|  | FLUSHDB | ☐ | Clear all keys |
+|  | DEL | ✅ | Delete one or more keys |
+|  | TYPE | ✅ | Return stored value type |
+|  | EXISTS | ✅ | Check if key exists |
+|  | KEYS | ✅ | Pattern matching (use `path.Match`) |
+|  | FLUSHDB | ✅ | Clear all keys |
 | **Expiry** | EXPIRE | ☐ | Attach TTL to keys |
 |  | PEXPIRE | ☐ | Expiry in milliseconds |
 |  | TTL / PTTL | ☐ | Query remaining lifetime |
@@ -65,6 +66,7 @@ Steps for bulding my Redis:
 | **Data Structures – Hashes** | HSET / HGET | ☐ | Add hash support |
 |  | HGETALL | ☐ | Return all fields |
 | **Transactions** | INCR | ☐ | Atomic increment |
+|  | DECR | ☐ | Atomic decrement |
 |  | MULTI / EXEC / DISCARD | ☐ | Transaction support |
 | **Persistence (AOF)** | Write AOF on write commands | ☐ | Append-only log |
 |  | Replay AOF on startup | ☐ | Load data back |
