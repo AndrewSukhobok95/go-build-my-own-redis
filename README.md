@@ -1,5 +1,21 @@
 # go-build-my-own-redis
 
+## Testing
+
+Test using redis-cli
+```
+docker run -it --rm redis redis-cli -h host.docker.internal -p 6380
+```
+
+## How I did this learning project
+
+Prompt for guiding ChatGPT:
+```
+I want you to shortly describe the purpose of the mechanics I will be implementing now and how it is used in Redis. Then I want you to explain the expected result and give me idea about which functions and structures I should implement, if it's not clear for the task itself. Don't give me ready code, just explain the idea of what I should achieve.
+```
+
+## Log of the steps I followed
+
 Steps for bulding my Redis:
 1. Simple server
 2. RESP parser
@@ -7,16 +23,9 @@ Steps for bulding my Redis:
 4. Add simple commands (PING, ECHO)
 5. Add simple storage
 6. Add SET and GET commands
+7. Added Server and Graceful shutdown
 
-Test using redis-cli
-```
-docker run -it --rm redis redis-cli -h host.docker.internal -p 6380
-```
-
-
-I want you to shortly describe the purpose of the mechanics I will be implementing now and how it is used in Redis. Then I want you to explain the expected result and give me idea about which functions and structures I should implement, if it's not clear for the task itself. Don't give me ready code, just explain the idea of what I should achieve.
-
-## 🧠 MyRedis Project Plan
+## Task Plan
 
 | Category | Task | Status | Notes |
 |-----------|------|--------|-------|
