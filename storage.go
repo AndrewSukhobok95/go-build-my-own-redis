@@ -15,7 +15,8 @@ type Storage struct {
 
 func NewStorage() *Storage {
 	return &Storage{
-		data: make(map[string]string),
+		data:    make(map[string]string),
+		expires: make(map[string]int64),
 	}
 }
 
