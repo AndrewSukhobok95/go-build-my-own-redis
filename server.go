@@ -26,19 +26,22 @@ func handleConnection(conn net.Conn, storage *Storage, shutdown <-chan struct{})
 			case <-shutdown:
 				return
 			default:
+				continue
 			}
 		case err == io.EOF:
 			log.Println("Connection closed by", conn.RemoteAddr())
 			return
 		case err != nil:
 			log.Println("Error reading from connection:", err)
-			return
+			writer.Write(newErrorValue("ERR invalid command"))
+			continue
 		}
 
 		cmd, args, err := parseCommand(v)
 		if err != nil {
 			log.Println("Error parsing the command:", err)
-			return
+			writer.Write(newErrorValue("ERR invalid command"))
+			continue
 		}
 
 		fmt.Printf("Received: %s %s\n", cmd, strings.Join(args, " "))
