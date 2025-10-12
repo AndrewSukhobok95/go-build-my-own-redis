@@ -26,8 +26,8 @@ func handleConnection(conn net.Conn, storage *Storage, shutdown <-chan struct{})
 			case <-shutdown:
 				return
 			default:
+				continue
 			}
-			continue
 		case err == io.EOF:
 			log.Println("Connection closed by", conn.RemoteAddr())
 			return
