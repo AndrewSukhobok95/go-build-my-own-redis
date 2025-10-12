@@ -48,10 +48,10 @@ Steps for bulding my Redis:
 |  | EXISTS | ✅ | Check if key exists |
 |  | KEYS | ✅ | Pattern matching (use `path.Match`) |
 |  | FLUSHDB | ✅ | Clear all keys |
-| **Expiry** | EXPIRE | ☐ | Attach TTL to keys |
-|  | PEXPIRE | ☐ | Expiry in milliseconds |
-|  | TTL / PTTL | ☐ | Query remaining lifetime |
-|  | Key cleanup goroutine | ☐ | Periodically remove expired keys |
+| **Expiry** | EXPIRE | ✅ | Attach TTL to keys |
+|  | PEXPIRE | ✅ | Expiry in milliseconds |
+|  | TTL / PTTL | ✅ | Query remaining lifetime |
+|  | Key cleanup goroutine | ✅ | Periodically remove expired keys |
 | **Data Structures – Strings** | INCR / DECR | ☐ | Numeric increment/decrement |
 |  | APPEND | ☐ | Append to string |
 | **Data Structures – Lists** | Create list | ☐ | Represent as `[]string` |
