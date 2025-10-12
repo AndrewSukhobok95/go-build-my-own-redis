@@ -146,3 +146,29 @@ func (s *Storage) IsExpired(key string) bool {
 	ttl := time.Until(time.UnixMilli(expiration))
 	return ttl <= 0
 }
+
+func (s *Storage) ExpiredKeys() []string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var expiredKeys []string
+	for key := range s.expires {
+		if s.IsExpired(key) {
+			expiredKeys = append(expiredKeys, key)
+		}
+	}
+	return expiredKeys
+}
+
+func (s *Storage) Cleanup(interval time.Duration, stop <-chan struct{}) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			s.Delete(s.ExpiredKeys()...)
+		case <-stop:
+			return
+		}
+	}
+}

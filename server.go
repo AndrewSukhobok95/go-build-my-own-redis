@@ -48,15 +48,16 @@ func handleConnection(conn net.Conn, storage *Storage, shutdown <-chan struct{})
 }
 
 type Server struct {
-	listener net.Listener
-	storage  *Storage
-	wg       sync.WaitGroup
-	shutdown chan struct{}
-	addr     string
+	listener        net.Listener
+	storage         *Storage
+	wg              sync.WaitGroup
+	shutdown        chan struct{}
+	addr            string
+	cleanupInterval time.Duration
 }
 
-func NewServer(addr string, storage *Storage) *Server {
-	return &Server{storage: storage, addr: addr, shutdown: make(chan struct{}, 1)}
+func NewServer(addr string, storage *Storage, cleanupInterval time.Duration) *Server {
+	return &Server{storage: storage, addr: addr, shutdown: make(chan struct{}, 1), cleanupInterval: cleanupInterval}
 }
 
 func (s *Server) Start() {
@@ -65,6 +66,8 @@ func (s *Server) Start() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	go s.storage.Cleanup(s.cleanupInterval, s.shutdown)
 
 	for {
 		conn, err := s.listener.Accept()
