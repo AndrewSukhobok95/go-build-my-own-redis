@@ -2,7 +2,14 @@
 
 ## Testing
 
-Test using redis-cli
+Test using simple `echo` and `printf` (following the expected Redis syntax):
+```
+echo -e "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n" | nc localhost 6380
+
+printf "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n" | nc localhost 6380
+```
+
+Test using redis-cli:
 ```
 docker run -it --rm redis redis-cli -h host.docker.internal -p 6380
 ```
@@ -10,9 +17,8 @@ docker run -it --rm redis redis-cli -h host.docker.internal -p 6380
 ## How I did this learning project
 
 Prompt for guiding ChatGPT:
-```
-I want you to shortly describe the purpose of the mechanics I will be implementing now and how it is used in Redis. Then I want you to explain the expected result and give me idea about which functions and structures I should implement, if it's not clear for the task itself. Don't give me ready code, just explain the idea of what I should achieve.
-```
+> I want you to shortly describe the purpose of the mechanics I will be implementing now and how it is used in Redis. Then I want you to explain the expected result and give me idea about which functions and structures I should implement, if it's not clear for the task itself. Don't give me ready code, just explain the idea of what I should achieve.
+
 
 ## Log of the steps I followed
 
