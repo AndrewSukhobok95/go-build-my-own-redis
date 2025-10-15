@@ -1,4 +1,4 @@
-package main
+package resp
 
 import (
 	"bufio"
@@ -23,6 +23,19 @@ type Value struct {
 	bulk  string
 	array []Value
 }
+
+func NewStringValue(s string) Value { return Value{typ: "string", str: s} }
+func NewIntValue(n int) Value       { return Value{typ: "integer", num: n} }
+func NewBulkValue(s string) Value   { return Value{typ: "bulk", bulk: s} }
+func NewArrayValue(a []Value) Value { return Value{typ: "integer", array: a} }
+func NewErrorValue(s string) Value  { return Value{typ: "error", str: s} }
+func NewNullValue() Value           { return Value{typ: "null"} }
+
+func (v Value) Typ() string    { return v.typ }
+func (v Value) Str() string    { return v.str }
+func (v Value) Num() int       { return v.num }
+func (v Value) Bulk() string   { return v.bulk }
+func (v Value) Array() []Value { return v.array }
 
 func (v Value) marshalString() []byte {
 	var b bytes.Buffer
@@ -96,7 +109,7 @@ func (v Value) Marshal() []byte {
 	}
 }
 
-func parseCommand(v Value) (cmd string, args []string, err error) {
+func ParseCommand(v Value) (cmd string, args []string, err error) {
 	if v.typ != "array" {
 		return "", nil, fmt.Errorf("invalid RESP type: %s", v.typ)
 	}
