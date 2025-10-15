@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -8,17 +8,21 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/commands"
+	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/resp"
+	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/storage"
 )
 
-func handleConnection(conn net.Conn, storage *Storage, shutdown <-chan struct{}) {
+func handleConnection(conn net.Conn, storage *storage.Storage, shutdown <-chan struct{}) {
 	defer conn.Close()
 	fmt.Println("Accepted connection from", conn.RemoteAddr())
 
-	resp := NewResp(conn)
-	writer := NewWriter(conn)
+	respParser := resp.NewResp(conn)
+	writer := resp.NewWriter(conn)
 	for {
 		conn.SetReadDeadline(time.Now().Add(time.Second))
-		v, err := resp.Read()
+		v, err := respParser.Read()
 		nerr, ok := err.(net.Error)
 		switch {
 		case ok && nerr.Timeout():
@@ -33,33 +37,33 @@ func handleConnection(conn net.Conn, storage *Storage, shutdown <-chan struct{})
 			return
 		case err != nil:
 			log.Println("Error reading from connection:", err)
-			writer.Write(newErrorValue("ERR invalid command"))
+			writer.Write(resp.NewErrorValue("ERR invalid command"))
 			continue
 		}
 
-		cmd, args, err := parseCommand(v)
+		cmd, args, err := resp.ParseCommand(v)
 		if err != nil {
 			log.Println("Error parsing the command:", err)
-			writer.Write(newErrorValue("ERR invalid command"))
+			writer.Write(resp.NewErrorValue("ERR invalid command"))
 			continue
 		}
 
 		fmt.Printf("Received: %s %s\n", cmd, strings.Join(args, " "))
-		answerValue := handleCommand(cmd, args, storage)
+		answerValue := commands.HandleCommand(cmd, args, storage)
 		writer.Write(answerValue)
 	}
 }
 
 type Server struct {
 	listener        net.Listener
-	storage         *Storage
+	storage         *storage.Storage
 	wg              sync.WaitGroup
 	shutdown        chan struct{}
 	addr            string
 	cleanupInterval time.Duration
 }
 
-func NewServer(addr string, storage *Storage, cleanupInterval time.Duration) *Server {
+func NewServer(addr string, storage *storage.Storage, cleanupInterval time.Duration) *Server {
 	return &Server{storage: storage, addr: addr, shutdown: make(chan struct{}, 1), cleanupInterval: cleanupInterval}
 }
 
