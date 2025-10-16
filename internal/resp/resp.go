@@ -123,15 +123,15 @@ func ParseCommand(v Value) (cmd string, args []string, err error) {
 	return cmd, args, nil
 }
 
-type Resp struct {
+type Reader struct {
 	reader *bufio.Reader
 }
 
-func NewResp(rd io.Reader) *Resp {
-	return &Resp{reader: bufio.NewReader(rd)}
+func NewReader(rd io.Reader) *Reader {
+	return &Reader{reader: bufio.NewReader(rd)}
 }
 
-func (r *Resp) readLine() (line []byte, n int, err error) {
+func (r *Reader) readLine() (line []byte, n int, err error) {
 	var b byte
 	for {
 		b, err = r.reader.ReadByte()
@@ -147,7 +147,7 @@ func (r *Resp) readLine() (line []byte, n int, err error) {
 	}
 }
 
-func (r *Resp) readInteger() (x int64, n int, err error) {
+func (r *Reader) readInteger() (x int64, n int, err error) {
 	line, n, err := r.readLine()
 	if err != nil {
 		return 0, n, err
@@ -160,7 +160,7 @@ func (r *Resp) readInteger() (x int64, n int, err error) {
 	return x, n, nil
 }
 
-func (r *Resp) readBulk() (Value, error) {
+func (r *Reader) readBulk() (Value, error) {
 	x, _, err := r.readInteger()
 	if err != nil {
 		return Value{}, err
@@ -176,7 +176,7 @@ func (r *Resp) readBulk() (Value, error) {
 	return Value{typ: "bulk", bulk: string(s[:len(s)-2])}, nil
 }
 
-func (r *Resp) readArray() (Value, error) {
+func (r *Reader) readArray() (Value, error) {
 	x, _, err := r.readInteger()
 	if err != nil {
 		return Value{}, err
@@ -198,7 +198,7 @@ func (r *Resp) readArray() (Value, error) {
 	return Value{typ: "array", array: array}, nil
 }
 
-func (r *Resp) Read() (Value, error) {
+func (r *Reader) Read() (Value, error) {
 	b, err := r.reader.ReadByte()
 	if err != nil {
 		return Value{}, err

@@ -47,7 +47,7 @@ func TestMarshal(t *testing.T) {
 
 func TestRead_BulkString(t *testing.T) {
 	data := "$5\r\nhello\r\n"
-	r := NewResp(strings.NewReader(data))
+	r := NewReader(strings.NewReader(data))
 
 	v, err := r.Read()
 	if err != nil {
@@ -63,7 +63,7 @@ func TestRead_BulkString(t *testing.T) {
 
 func TestRead_Array(t *testing.T) {
 	data := "*2\r\n$3\r\nget\r\n$3\r\nkey\r\n"
-	r := NewResp(strings.NewReader(data))
+	r := NewReader(strings.NewReader(data))
 
 	v, err := r.Read()
 	if err != nil {

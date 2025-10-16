@@ -29,7 +29,7 @@ func handleEcho(args []string) resp.Value {
 	return errWrongArgs()
 }
 
-func handleSet(args []string, storage *storage.Storage) resp.Value {
+func handleSet(args []string, storage *storage.KV) resp.Value {
 	if len(args) == 2 {
 		storage.Set(args[0], args[1])
 		return resp.NewStringValue("OK")
@@ -37,7 +37,7 @@ func handleSet(args []string, storage *storage.Storage) resp.Value {
 	return errWrongArgs()
 }
 
-func handleGet(args []string, storage *storage.Storage) resp.Value {
+func handleGet(args []string, storage *storage.KV) resp.Value {
 	if len(args) != 1 {
 		return errWrongArgs()
 	}
@@ -48,28 +48,28 @@ func handleGet(args []string, storage *storage.Storage) resp.Value {
 	return resp.NewBulkValue(val)
 }
 
-func handleDel(args []string, storage *storage.Storage) resp.Value {
+func handleDel(args []string, storage *storage.KV) resp.Value {
 	if len(args) == 0 {
 		return errWrongArgs()
 	}
 	return resp.NewIntValue(storage.Delete(args...))
 }
 
-func handleType(args []string, storage *storage.Storage) resp.Value {
+func handleType(args []string, storage *storage.KV) resp.Value {
 	if len(args) != 1 {
 		return errWrongArgs()
 	}
 	return resp.NewBulkValue(storage.Type(args[0]))
 }
 
-func handleExists(args []string, storage *storage.Storage) resp.Value {
+func handleExists(args []string, storage *storage.KV) resp.Value {
 	if len(args) == 0 {
 		return errWrongArgs()
 	}
 	return resp.NewIntValue(storage.Exists(args...))
 }
 
-func handleKeys(args []string, storage *storage.Storage) resp.Value {
+func handleKeys(args []string, storage *storage.KV) resp.Value {
 	if len(args) != 1 {
 		return errWrongArgs()
 	}
@@ -84,7 +84,7 @@ func handleKeys(args []string, storage *storage.Storage) resp.Value {
 	return resp.NewArrayValue(values)
 }
 
-func handleFlushdb(args []string, storage *storage.Storage) resp.Value {
+func handleFlushdb(args []string, storage *storage.KV) resp.Value {
 	if len(args) != 0 {
 		return errWrongArgs()
 	}
@@ -92,7 +92,7 @@ func handleFlushdb(args []string, storage *storage.Storage) resp.Value {
 	return resp.NewStringValue("OK")
 }
 
-func handleExpire(args []string, storage *storage.Storage, useSeconds bool) resp.Value {
+func handleExpire(args []string, storage *storage.KV, useSeconds bool) resp.Value {
 	if len(args) != 2 {
 		return errWrongArgs()
 	}
@@ -113,7 +113,7 @@ func handleExpire(args []string, storage *storage.Storage, useSeconds bool) resp
 	return resp.NewIntValue(0)
 }
 
-func handleTTL(args []string, storage *storage.Storage, useSeconds bool) resp.Value {
+func handleTTL(args []string, storage *storage.KV, useSeconds bool) resp.Value {
 	if len(args) != 1 {
 		return errWrongArgs()
 	}
@@ -128,7 +128,7 @@ func handleTTL(args []string, storage *storage.Storage, useSeconds bool) resp.Va
 	return resp.NewIntValue(int(ttlMilli))
 }
 
-func HandleCommand(cmd string, args []string, storage *storage.Storage) resp.Value {
+func HandleCommand(cmd string, args []string, storage *storage.KV) resp.Value {
 	switch strings.ToUpper(cmd) {
 	case "PING":
 		return handlePing(args)

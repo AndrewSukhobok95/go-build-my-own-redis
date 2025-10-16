@@ -21,7 +21,7 @@ func TestHandlePing(t *testing.T) {
 		{
 			name: "PING with one arg",
 			args: []string{"hello"},
-			want: resp.NewStringValue("hello"),
+			want: resp.NewBulkValue("hello"),
 		},
 		{
 			name: "PING with too many args",
@@ -54,12 +54,12 @@ func TestHandleEcho(t *testing.T) {
 		{
 			name: "ECHO with no args",
 			args: []string{},
-			want: resp.NewErrorValue("ERR wrong number of arguments, only one is expected"),
+			want: resp.NewErrorValue("ERR wrong number of arguments"),
 		},
 		{
 			name: "ECHO with two args",
 			args: []string{"hello", "world"},
-			want: resp.NewErrorValue("ERR wrong number of arguments, only one is expected"),
+			want: resp.NewErrorValue("ERR wrong number of arguments"),
 		},
 	}
 
@@ -74,7 +74,7 @@ func TestHandleEcho(t *testing.T) {
 }
 
 func TestHandleSet(t *testing.T) {
-	storage := storage.NewStorage()
+	storage := storage.NewKV()
 
 	tests := []struct {
 		name string
@@ -89,7 +89,7 @@ func TestHandleSet(t *testing.T) {
 		{
 			name: "SET with one argument",
 			args: []string{"foo"},
-			want: resp.NewErrorValue("ERR wrong number of arguments, two are expected"),
+			want: resp.NewErrorValue("ERR wrong number of arguments"),
 		},
 	}
 
@@ -104,7 +104,7 @@ func TestHandleSet(t *testing.T) {
 }
 
 func TestHandleGet(t *testing.T) {
-	storage := storage.NewStorage()
+	storage := storage.NewKV()
 	storage.Set("foo", "bar")
 
 	tests := []struct {
@@ -125,7 +125,7 @@ func TestHandleGet(t *testing.T) {
 		{
 			name: "GET with no arguments",
 			args: []string{},
-			want: resp.NewErrorValue("ERR wrong number of arguments, one is expected"),
+			want: resp.NewErrorValue("ERR wrong number of arguments"),
 		},
 	}
 
@@ -140,7 +140,7 @@ func TestHandleGet(t *testing.T) {
 }
 
 func TestHandleCommand(t *testing.T) {
-	storage := storage.NewStorage()
+	storage := storage.NewKV()
 
 	tests := []struct {
 		name string
