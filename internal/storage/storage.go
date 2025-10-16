@@ -7,26 +7,26 @@ import (
 	"time"
 )
 
-type Storage struct {
+type KV struct {
 	mu      sync.RWMutex
 	data    map[string]string
 	expires map[string]int64
 }
 
-func NewStorage() *Storage {
-	return &Storage{
+func NewKV() *KV {
+	return &KV{
 		data:    make(map[string]string),
 		expires: make(map[string]int64),
 	}
 }
 
-func (s *Storage) Set(key, value string) {
+func (s *KV) Set(key, value string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.data[key] = value
 }
 
-func (s *Storage) Get(key string) (string, bool) {
+func (s *KV) Get(key string) (string, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	val, isp := s.data[key]
@@ -36,7 +36,7 @@ func (s *Storage) Get(key string) (string, bool) {
 	return val, isp
 }
 
-func (s *Storage) Delete(keys ...string) int {
+func (s *KV) Delete(keys ...string) int {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	var n int
@@ -50,7 +50,7 @@ func (s *Storage) Delete(keys ...string) int {
 	return n
 }
 
-func (s *Storage) Type(key string) string {
+func (s *KV) Type(key string) string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	_, isp := s.data[key]
@@ -60,7 +60,7 @@ func (s *Storage) Type(key string) string {
 	return "string"
 }
 
-func (s *Storage) Exists(keys ...string) int {
+func (s *KV) Exists(keys ...string) int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	var n int
@@ -72,7 +72,7 @@ func (s *Storage) Exists(keys ...string) int {
 	return n
 }
 
-func (s *Storage) Keys(pattern string) ([]string, error) {
+func (s *KV) Keys(pattern string) ([]string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	var existing []string
@@ -92,14 +92,14 @@ func (s *Storage) Keys(pattern string) ([]string, error) {
 	return existing, nil
 }
 
-func (s *Storage) Flushdb() {
+func (s *KV) Flushdb() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	clear(s.data)
 	clear(s.expires)
 }
 
-func (s *Storage) SetExpire(key string, duration time.Duration) (keyExists bool) {
+func (s *KV) SetExpire(key string, duration time.Duration) (keyExists bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	_, keyExists = s.data[key]
@@ -110,7 +110,7 @@ func (s *Storage) SetExpire(key string, duration time.Duration) (keyExists bool)
 	return keyExists
 }
 
-func (s *Storage) TTL(key string) int64 {
+func (s *KV) TTL(key string) int64 {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	_, isp := s.data[key]
@@ -130,7 +130,7 @@ func (s *Storage) TTL(key string) int64 {
 	return ttl
 }
 
-func (s *Storage) IsExpired(key string) bool {
+func (s *KV) IsExpired(key string) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -148,7 +148,7 @@ func (s *Storage) IsExpired(key string) bool {
 	return ttl <= 0
 }
 
-func (s *Storage) ExpiredKeys() []string {
+func (s *KV) ExpiredKeys() []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -161,7 +161,7 @@ func (s *Storage) ExpiredKeys() []string {
 	return expiredKeys
 }
 
-func (s *Storage) Cleanup(interval time.Duration, stop <-chan struct{}) {
+func (s *KV) Cleanup(interval time.Duration, stop <-chan struct{}) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 	for {
