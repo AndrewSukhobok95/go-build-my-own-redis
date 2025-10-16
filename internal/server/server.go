@@ -14,15 +14,15 @@ import (
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/storage"
 )
 
-func handleConnection(conn net.Conn, storage *storage.Storage, shutdown <-chan struct{}) {
+func handleConnection(conn net.Conn, storage *storage.KV, shutdown <-chan struct{}) {
 	defer conn.Close()
 	fmt.Println("Accepted connection from", conn.RemoteAddr())
 
-	respParser := resp.NewResp(conn)
-	writer := resp.NewWriter(conn)
+	respReader := resp.NewReader(conn)
+	respWriter := resp.NewWriter(conn)
 	for {
 		conn.SetReadDeadline(time.Now().Add(time.Second))
-		v, err := respParser.Read()
+		v, err := respReader.Read()
 		nerr, ok := err.(net.Error)
 		switch {
 		case ok && nerr.Timeout():
@@ -37,33 +37,33 @@ func handleConnection(conn net.Conn, storage *storage.Storage, shutdown <-chan s
 			return
 		case err != nil:
 			log.Println("Error reading from connection:", err)
-			writer.Write(resp.NewErrorValue("ERR invalid command"))
+			respWriter.Write(resp.NewErrorValue("ERR invalid command"))
 			continue
 		}
 
 		cmd, args, err := resp.ParseCommand(v)
 		if err != nil {
 			log.Println("Error parsing the command:", err)
-			writer.Write(resp.NewErrorValue("ERR invalid command"))
+			respWriter.Write(resp.NewErrorValue("ERR invalid command"))
 			continue
 		}
 
 		fmt.Printf("Received: %s %s\n", cmd, strings.Join(args, " "))
 		answerValue := commands.HandleCommand(cmd, args, storage)
-		writer.Write(answerValue)
+		respWriter.Write(answerValue)
 	}
 }
 
 type Server struct {
 	listener        net.Listener
-	storage         *storage.Storage
+	storage         *storage.KV
 	wg              sync.WaitGroup
 	shutdown        chan struct{}
 	addr            string
 	cleanupInterval time.Duration
 }
 
-func NewServer(addr string, storage *storage.Storage, cleanupInterval time.Duration) *Server {
+func New(addr string, storage *storage.KV, cleanupInterval time.Duration) *Server {
 	return &Server{storage: storage, addr: addr, shutdown: make(chan struct{}, 1), cleanupInterval: cleanupInterval}
 }
 

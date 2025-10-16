@@ -17,8 +17,8 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
-	storage := storage.NewStorage()
-	server := server.NewServer("6380", storage, time.Duration(5)*time.Second)
+	storage := storage.NewKV()
+	server := server.New("6380", storage, time.Duration(5)*time.Second)
 
 	go server.Start()
 
