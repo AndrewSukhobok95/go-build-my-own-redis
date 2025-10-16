@@ -5,9 +5,9 @@ import (
 )
 
 type CommandContext struct {
-	storage *storage.Storage
+	storage *storage.KV
 }
 
-func NewCommandContext(storage *storage.Storage) *CommandContext {
+func NewCommandContext(storage *storage.KV) *CommandContext {
 	return &CommandContext{storage: storage}
 }
