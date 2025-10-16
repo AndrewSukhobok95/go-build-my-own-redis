@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/AndrewSukhobok95/go-build-my-own-redis/internal/commands"
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/server"
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/storage"
 )

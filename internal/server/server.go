@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/commands"
+	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/engine"
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/resp"
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/storage"
 )
@@ -49,7 +49,8 @@ func handleConnection(conn net.Conn, storage *storage.KV, shutdown <-chan struct
 		}
 
 		fmt.Printf("Received: %s %s\n", cmd, strings.Join(args, " "))
-		answerValue := commands.HandleCommand(cmd, args, storage)
+		ctx := engine.NewCommandContext(storage)
+		answerValue := engine.DispatchCommand(ctx, cmd, args)
 		respWriter.Write(answerValue)
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/resp"
 )
 
-type CommandHandler func(ctx *CommandContext, args []resp.Value) resp.Value
+type CommandHandler func(ctx *CommandContext, args []string) resp.Value
 
 type Command struct {
 	name    string

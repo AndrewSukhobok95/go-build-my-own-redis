@@ -11,3 +11,7 @@ type CommandContext struct {
 func NewCommandContext(storage *storage.KV) *CommandContext {
 	return &CommandContext{storage: storage}
 }
+
+func (c *CommandContext) Storage() *storage.KV {
+	return c.storage
+}
