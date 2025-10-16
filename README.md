@@ -64,7 +64,7 @@ Steps for bulding my Redis:
 |  | PEXPIRE | ✅ | Expiry in milliseconds |
 |  | TTL / PTTL | ✅ | Query remaining lifetime |
 |  | Key cleanup goroutine | ✅ | Periodically remove expired keys |
-| **Engine Architecture** | **Command Registry / Dispatcher** | ☐      | Map commands dynamically instead of using a large `switch`; each command registered with metadata (name, arity, handler) |
+| **Engine Architecture** | **Command Registry / Dispatcher** | ✅      | Map commands dynamically instead of using a large `switch`; each command registered with metadata (name, arity, handler) |
 | **Data Structures – Strings** | INCR / DECR | ☐ | Numeric increment/decrement |
 |  | APPEND | ☐ | Append to string |
 | **Data Structures – Lists** | Create list | ☐ | Represent as `[]string` |
