@@ -38,6 +38,7 @@ Steps for bulding my Redis:
 7. Add Server and Graceful shutdown
 8. Add commands DEL, TYPE, EXISTS, KEYS, FLUSHDB
 9. Added expiration mechanincs - EXPIRE, PEXPIRE, TTL, PTTL, clean-up routine
+10. Added Engine for Command Registery and Dispatcher
 
 ## Task Plan
 
