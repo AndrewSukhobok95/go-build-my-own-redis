@@ -1,10 +1,18 @@
 package storage
 
 import (
+	"errors"
 	"log"
+	"math"
 	"path"
+	"strconv"
 	"sync"
 	"time"
+)
+
+var (
+	ErrNotInteger = errors.New("value is not an integer or out of range")
+	ErrOverflow   = errors.New("increment or decrement would overflow")
 )
 
 type KV struct {
@@ -48,6 +56,47 @@ func (s *KV) Delete(keys ...string) int {
 		}
 	}
 	return n
+}
+
+func (s *KV) Incr(key string, delta int64) (int64, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	val, isp := s.data[key]
+	if !isp {
+		val = "0"
+	}
+
+	valInt, err := strconv.ParseInt(val, 10, 64)
+	if err != nil {
+		return 0, ErrNotInteger
+	}
+
+	if delta > 0 && valInt > math.MaxInt64-delta {
+		return 0, ErrOverflow
+	}
+	if delta < 0 && valInt < math.MinInt64-delta {
+		return 0, ErrOverflow
+	}
+
+	newValInt := valInt + delta
+	s.data[key] = strconv.FormatInt(newValInt, 10)
+	return newValInt, nil
+}
+
+func (s *KV) Append(key, value string) int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	valPresent, isp := s.data[key]
+	if !isp {
+		valPresent = ""
+	}
+
+	newVal := valPresent + value
+	s.data[key] = newVal
+
+	return len(newVal)
 }
 
 func (s *KV) Type(key string) string {

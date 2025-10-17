@@ -38,12 +38,12 @@ func handleTTL(args []string, storage *storage.KV, useSeconds bool) resp.Value {
 
 	ttlMilli := min(storage.TTL(args[0]), math.MaxInt64)
 	if ttlMilli < 0 {
-		return resp.NewIntValue(int(ttlMilli))
+		return resp.NewIntValue(int64(ttlMilli))
 	}
 	if useSeconds {
-		return resp.NewIntValue(int(ttlMilli / 1000))
+		return resp.NewIntValue(int64(ttlMilli / 1000))
 	}
-	return resp.NewIntValue(int(ttlMilli))
+	return resp.NewIntValue(int64(ttlMilli))
 }
 
 func wrapHandleExpire(ctx *engine.CommandContext, args []string) resp.Value {
