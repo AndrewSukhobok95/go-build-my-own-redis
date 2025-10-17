@@ -37,14 +37,14 @@ Steps for bulding my Redis:
 1. Simple server
 2. RESP parser
 3. Value Marshal and Writer
-4. Add simple commands PING, ECHO
-5. Add simple storage
-6. Add SET and GET commands
-7. Add Server and Graceful shutdown
-8. Add commands DEL, TYPE, EXISTS, KEYS, FLUSHDB
+4. Added simple commands PING, ECHO
+5. Added simple storage
+6. Added SET and GET commands
+7. Added Server and Graceful shutdown
+8. Added commands DEL, TYPE, EXISTS, KEYS, FLUSHDB
 9. Added expiration mechanincs - EXPIRE, PEXPIRE, TTL, PTTL, clean-up routine
 10. Added Engine for Command Registery and Dispatcher
-11. 
+11. Added commands INCR, DECR, INCRBY, DECRBY, APPEND
 
 ## Task Plan
 
