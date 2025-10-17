@@ -19,13 +19,13 @@ const (
 type Value struct {
 	typ   string
 	str   string
-	num   int
+	num   int64
 	bulk  string
 	array []Value
 }
 
 func NewStringValue(s string) Value { return Value{typ: "string", str: s} }
-func NewIntValue(n int) Value       { return Value{typ: "integer", num: n} }
+func NewIntValue(n int64) Value     { return Value{typ: "integer", num: n} }
 func NewBulkValue(s string) Value   { return Value{typ: "bulk", bulk: s} }
 func NewArrayValue(a []Value) Value { return Value{typ: "integer", array: a} }
 func NewErrorValue(s string) Value  { return Value{typ: "error", str: s} }
@@ -33,7 +33,7 @@ func NewNullValue() Value           { return Value{typ: "null"} }
 
 func (v Value) Typ() string    { return v.typ }
 func (v Value) Str() string    { return v.str }
-func (v Value) Num() int       { return v.num }
+func (v Value) Num() int64     { return v.num }
 func (v Value) Bulk() string   { return v.bulk }
 func (v Value) Array() []Value { return v.array }
 
@@ -48,7 +48,7 @@ func (v Value) marshalString() []byte {
 func (v Value) marshalInteger() []byte {
 	var b bytes.Buffer
 	b.WriteByte(':')
-	b.WriteString(strconv.Itoa(v.num))
+	b.WriteString(strconv.FormatInt(v.num, 10))
 	b.WriteString("\r\n")
 	return b.Bytes()
 }

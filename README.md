@@ -20,7 +20,12 @@ Prompts for guiding ChatGPT:
 > I am building Redis clone in Go as an excercise to learn the Go language (already did a tour of go). Here is the plan that I created with ChatGPT and the code that I implemented so far:
 ...
 Review the plan, check if there is something that would be halpful to add.
-If not, let's concinue with next task:
+If not, let's continue with next task:
+...
+
+> I am building Redis clone in Go as an excercise to learn the Go language (already did a tour of go). Here is the plan that I created with ChatGPT and the code that I implemented so far:
+...
+Let's continue with next task according to the plan:
 ...
 
 > I want you to shortly describe the purpose of the mechanics I will be implementing now and how it is used in Redis. Then I want you to explain the expected result and give me idea about which functions and structures I should implement, if it's not clear for the task itself. Don't give me ready code, just explain the idea of what I should achieve.
@@ -39,6 +44,7 @@ Steps for bulding my Redis:
 8. Add commands DEL, TYPE, EXISTS, KEYS, FLUSHDB
 9. Added expiration mechanincs - EXPIRE, PEXPIRE, TTL, PTTL, clean-up routine
 10. Added Engine for Command Registery and Dispatcher
+11. 
 
 ## Task Plan
 
@@ -66,8 +72,8 @@ Steps for bulding my Redis:
 |  | TTL / PTTL | ✅ | Query remaining lifetime |
 |  | Key cleanup goroutine | ✅ | Periodically remove expired keys |
 | **Engine Architecture** | **Command Registry / Dispatcher** | ✅      | Map commands dynamically instead of using a large `switch`; each command registered with metadata (name, arity, handler) |
-| **Data Structures – Strings** | INCR / DECR | ☐ | Numeric increment/decrement |
-|  | APPEND | ☐ | Append to string |
+| **Data Structures – Strings** | INCR / DECR | ✅ | Numeric increment/decrement |
+|  | APPEND | ✅ | Append to string |
 | **Data Structures – Lists** | Create list | ☐ | Represent as `[]string` |
 |  | RPUSH | ☐ | Append element |
 |  | LPUSH | ☐ | Prepend element |
