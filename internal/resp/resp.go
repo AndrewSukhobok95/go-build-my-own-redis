@@ -27,7 +27,7 @@ type Value struct {
 func NewStringValue(s string) Value { return Value{typ: "string", str: s} }
 func NewIntValue(n int64) Value     { return Value{typ: "integer", num: n} }
 func NewBulkValue(s string) Value   { return Value{typ: "bulk", bulk: s} }
-func NewArrayValue(a []Value) Value { return Value{typ: "integer", array: a} }
+func NewArrayValue(a []Value) Value { return Value{typ: "array", array: a} }
 func NewErrorValue(s string) Value  { return Value{typ: "error", str: s} }
 func NewNullValue() Value           { return Value{typ: "null"} }
 
