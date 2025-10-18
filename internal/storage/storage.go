@@ -13,17 +13,41 @@ import (
 var (
 	ErrNotInteger = errors.New("value is not an integer or out of range")
 	ErrOverflow   = errors.New("increment or decrement would overflow")
+	ErrWrongType  = errors.New("wrong type")
 )
+
+type entryType int
+
+const (
+	stringType entryType = iota
+	listType
+)
+
+type entry struct {
+	typ  entryType
+	data any
+}
+
+func newStringEntry(s string) *entry {
+	return &entry{typ: stringType, data: s}
+}
+
+func (e *entry) String() (string, error) {
+	if e.typ != stringType {
+		return "", ErrWrongType
+	}
+	return e.data.(string), nil
+}
 
 type KV struct {
 	mu      sync.RWMutex
-	data    map[string]string
+	data    map[string]*entry
 	expires map[string]int64
 }
 
 func NewKV() *KV {
 	return &KV{
-		data:    make(map[string]string),
+		data:    make(map[string]*entry),
 		expires: make(map[string]int64),
 	}
 }
@@ -31,17 +55,20 @@ func NewKV() *KV {
 func (s *KV) Set(key, value string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.data[key] = value
+	s.data[key] = newStringEntry(value)
 }
 
-func (s *KV) Get(key string) (string, bool) {
+func (s *KV) Get(key string) (string, bool, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	val, isp := s.data[key]
-	if s.IsExpired(key) {
-		return "", false
+
+	e, exists := s.data[key]
+	if s.IsExpired(key) || !exists {
+		return "", false, nil
 	}
-	return val, isp
+
+	strVal, err := e.String()
+	return strVal, err == nil, err
 }
 
 func (s *KV) Delete(keys ...string) int {
@@ -49,7 +76,7 @@ func (s *KV) Delete(keys ...string) int {
 	defer s.mu.Unlock()
 	var n int
 	for _, k := range keys {
-		if _, isp := s.data[k]; isp {
+		if _, exists := s.data[k]; exists {
 			delete(s.data, k)
 			delete(s.expires, k)
 			n++
@@ -62,51 +89,63 @@ func (s *KV) Incr(key string, delta int64) (int64, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	val, isp := s.data[key]
-	if !isp {
-		val = "0"
+	var valInt int64 = 0
+	e, exists := s.data[key]
+
+	if exists {
+		val, err := e.String()
+		if err != nil {
+			return 0, err
+		}
+		valInt, err = strconv.ParseInt(val, 10, 64)
+		if err != nil {
+			return 0, ErrNotInteger
+		}
 	}
 
-	valInt, err := strconv.ParseInt(val, 10, 64)
-	if err != nil {
-		return 0, ErrNotInteger
-	}
-
-	if delta > 0 && valInt > math.MaxInt64-delta {
-		return 0, ErrOverflow
-	}
-	if delta < 0 && valInt < math.MinInt64-delta {
+	if (delta > 0 && valInt > math.MaxInt64-delta) || (delta < 0 && valInt < math.MinInt64-delta) {
 		return 0, ErrOverflow
 	}
 
 	newValInt := valInt + delta
-	s.data[key] = strconv.FormatInt(newValInt, 10)
+	s.data[key] = newStringEntry(strconv.FormatInt(newValInt, 10))
 	return newValInt, nil
 }
 
-func (s *KV) Append(key, value string) int {
+func (s *KV) Append(key, value string) (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	valPresent, isp := s.data[key]
-	if !isp {
-		valPresent = ""
+	var base string = ""
+	if e, exists := s.data[key]; exists {
+		valStr, err := e.String()
+		if err != nil {
+			return 0, err
+		}
+		base = valStr
 	}
 
-	newVal := valPresent + value
-	s.data[key] = newVal
+	newVal := base + value
+	s.data[key] = newStringEntry(newVal)
 
-	return len(newVal)
+	return len(newVal), nil
 }
 
 func (s *KV) Type(key string) string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	_, isp := s.data[key]
+	e, isp := s.data[key]
 	if !isp || s.IsExpired(key) {
 		return "none"
 	}
-	return "string"
+	switch e.typ {
+	case stringType:
+		return "string"
+	case listType:
+		return "list"
+	default:
+		return "none"
+	}
 }
 
 func (s *KV) Exists(keys ...string) int {
