@@ -17,7 +17,7 @@ func newStringEntry(s string) *entry {
 }
 
 func newListEntry(l []string) *entry {
-	return &entry{typ: stringType, data: l}
+	return &entry{typ: listType, data: l}
 }
 
 func (e *entry) String() (string, error) {
@@ -38,7 +38,7 @@ func (e *entry) PushLeft(values ...string) (int, error) {
 	if e.typ != listType {
 		return 0, ErrWrongType
 	}
-	e.data = append(e.data.([]string), values...)
+	e.data = append(values, e.data.([]string)...)
 	return len(e.data.([]string)), nil
 }
 
@@ -46,7 +46,7 @@ func (e *entry) PushRight(values ...string) (int, error) {
 	if e.typ != listType {
 		return 0, ErrWrongType
 	}
-	e.data = append(values, e.data.([]string)...)
+	e.data = append(e.data.([]string), values...)
 	return len(e.data.([]string)), nil
 }
 
