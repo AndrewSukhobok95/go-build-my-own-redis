@@ -1,22 +1,20 @@
 # go-build-my-own-redis
 
-## Testing
+This repository is an educational project to improve my Go skills by recreating Redis from scratch.
 
-Test using simple `echo` and `printf` (following the expected Redis syntax):
-```
-echo -e "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n" | nc localhost 6380
+Instead of following a course, I built my own learning path using ChatGPT as a tutor and course outlines from various resources.
 
-printf "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n" | nc localhost 6380
-```
+In sections below, I described:
 
-Test using redis-cli:
-```
-docker run -it --rm redis redis-cli -h host.docker.internal -p 6380
-```
+- Implementation log — step-by-step history of features I was adding
+- Prompts — examples of propmpts I used for ChatGPT to generate tasks and explanations
+- Task plan — roadmap features and improvements
+- Testing setup
 
 ## How I did this learning project
 
 Prompts for guiding ChatGPT:
+
 > I am building Redis clone in Go as an excercise to learn the Go language (already did a tour of go). Here is the plan that I created with ChatGPT and the code that I implemented so far:
 ...
 Review the plan, check if there is something that would be halpful to add.
@@ -120,4 +118,16 @@ Steps for bulding my Redis:
 |  | Metrics / Prometheus | ☐ | Monitor ops/sec, memory |
 |  | CLI client in Go | ☐ | Mini `redis-cli` clone |
 
+## Testing
 
+Test using simple `echo` and `printf` (following the expected Redis syntax):
+```
+echo -e "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n" | nc localhost 6380
+
+printf "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n" | nc localhost 6380
+```
+
+Test using redis-cli:
+```
+docker run -it --rm redis redis-cli -h host.docker.internal -p 6380
+```
