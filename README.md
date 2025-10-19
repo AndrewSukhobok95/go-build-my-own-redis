@@ -45,6 +45,7 @@ Steps for bulding my Redis:
 9. Added expiration mechanincs - EXPIRE, PEXPIRE, TTL, PTTL, clean-up routine
 10. Added Engine for Command Registery and Dispatcher
 11. Added commands INCR, DECR, INCRBY, DECRBY, APPEND
+11. Added list structure: LPUSH, RPUSH, LPOP, RPOP, LLEN, LRANGE
 
 ## Task Plan
 
