@@ -1,10 +1,13 @@
 package commands
 
 import (
+	"errors"
+	"log"
 	"strconv"
 
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/engine"
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/resp"
+	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/storage"
 )
 
 func handlePing(ctx *engine.CommandContext, args []string) resp.Value {
@@ -36,10 +39,20 @@ func handleGet(ctx *engine.CommandContext, args []string) resp.Value {
 	if len(args) != 1 {
 		return errWrongArgs()
 	}
-	val, isp := ctx.Storage().Get(args[0])
+
+	val, isp, err := ctx.Storage().Get(args[0])
+	if err != nil {
+		if errors.Is(err, storage.ErrWrongType) {
+			return resp.NewErrorValue("WRONGTYPE Operation against a key holding the wrong kind of value")
+		}
+		log.Printf("internal error in GET: %v", err)
+		return resp.NewErrorValue("ERR internal error")
+	}
+
 	if !isp {
 		return resp.NewNullValue()
 	}
+
 	return resp.NewBulkValue(val)
 }
 
@@ -64,26 +77,34 @@ func handleExists(ctx *engine.CommandContext, args []string) resp.Value {
 	return resp.NewIntValue(int64(ctx.Storage().Exists(args...)))
 }
 
+func doIncr(ctx *engine.CommandContext, key string, delta int64) resp.Value {
+	newValue, err := ctx.Storage().Incr(key, delta)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrWrongType):
+			return resp.NewErrorValue("WRONGTYPE Operation against a key holding the wrong kind of value")
+		case errors.Is(err, storage.ErrNotInteger), errors.Is(err, storage.ErrOverflow):
+			return resp.NewErrorValue("ERR value is not an integer or out of range")
+		default:
+			log.Printf("internal error in INCR: %v", err)
+			return resp.NewErrorValue("ERR internal error")
+		}
+	}
+	return resp.NewIntValue(newValue)
+}
+
 func handleIncr(ctx *engine.CommandContext, args []string) resp.Value {
 	if len(args) != 1 {
 		return errWrongArgs()
 	}
-	newValue, err := ctx.Storage().Incr(args[0], 1)
-	if err != nil {
-		return resp.NewErrorValue("ERR " + err.Error())
-	}
-	return resp.NewIntValue(newValue)
+	return doIncr(ctx, args[0], 1)
 }
 
 func handleDecr(ctx *engine.CommandContext, args []string) resp.Value {
 	if len(args) != 1 {
 		return errWrongArgs()
 	}
-	newValue, err := ctx.Storage().Incr(args[0], -1)
-	if err != nil {
-		return resp.NewErrorValue("ERR " + err.Error())
-	}
-	return resp.NewIntValue(newValue)
+	return doIncr(ctx, args[0], -1)
 }
 
 func handleIncrBy(ctx *engine.CommandContext, args []string) resp.Value {
@@ -94,12 +115,7 @@ func handleIncrBy(ctx *engine.CommandContext, args []string) resp.Value {
 	if err != nil {
 		return resp.NewErrorValue("ERR value is not an integer or out of range")
 	}
-	var newValue int64
-	newValue, err = ctx.Storage().Incr(args[0], incrementInt)
-	if err != nil {
-		return resp.NewErrorValue("ERR " + err.Error())
-	}
-	return resp.NewIntValue(newValue)
+	return doIncr(ctx, args[0], incrementInt)
 }
 
 func handleDecrBy(ctx *engine.CommandContext, args []string) resp.Value {
@@ -110,19 +126,24 @@ func handleDecrBy(ctx *engine.CommandContext, args []string) resp.Value {
 	if err != nil {
 		return resp.NewErrorValue("ERR value is not an integer or out of range")
 	}
-	var newValue int64
-	newValue, err = ctx.Storage().Incr(args[0], -incrementInt)
-	if err != nil {
-		return resp.NewErrorValue("ERR " + err.Error())
-	}
-	return resp.NewIntValue(newValue)
+	return doIncr(ctx, args[0], -incrementInt)
 }
 
 func handleAppend(ctx *engine.CommandContext, args []string) resp.Value {
 	if len(args) != 2 {
 		return errWrongArgs()
 	}
-	return resp.NewIntValue(int64(ctx.Storage().Append(args[0], args[1])))
+	n, err := ctx.Storage().Append(args[0], args[1])
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrWrongType):
+			return resp.NewErrorValue("WRONGTYPE Operation against a key holding the wrong kind of value")
+		default:
+			log.Printf("internal error in INCR: %v", err)
+			return resp.NewErrorValue("ERR internal error")
+		}
+	}
+	return resp.NewIntValue(int64(n))
 }
 
 func init() {

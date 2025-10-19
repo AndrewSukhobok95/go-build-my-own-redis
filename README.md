@@ -74,12 +74,12 @@ Steps for bulding my Redis:
 | **Engine Architecture** | **Command Registry / Dispatcher** | ✅      | Map commands dynamically instead of using a large `switch`; each command registered with metadata (name, arity, handler) |
 | **Data Structures – Strings** | INCR / DECR | ✅ | Numeric increment/decrement |
 |  | APPEND | ✅ | Append to string |
-| **Data Structures – Lists** | Create list | ☐ | Represent as `[]string` |
-|  | RPUSH | ☐ | Append element |
-|  | LPUSH | ☐ | Prepend element |
-|  | LLEN | ☐ | Return list length |
-|  | LRANGE | ☐ | Return element range |
-|  | LPOP / RPOP | ☐ | Remove and return element |
+| **Data Structures – Lists** | Create list | ✅ | Represent as `[]string` |
+|  | RPUSH | ✅ | Append element |
+|  | LPUSH | ✅ | Prepend element |
+|  | LLEN | ✅ | Return list length |
+|  | LRANGE | ✅ | Return element range |
+|  | LPOP / RPOP | ✅ | Remove and return element |
 | **Data Structures – Sets** | SADD | ☐ | Add members |
 |  | SMEMBERS | ☐ | Get all members |
 |  | SISMEMBER | ☐ | Check membership |

@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"errors"
 	"log"
 	"math"
 	"path"
@@ -9,35 +8,6 @@ import (
 	"sync"
 	"time"
 )
-
-var (
-	ErrNotInteger = errors.New("value is not an integer or out of range")
-	ErrOverflow   = errors.New("increment or decrement would overflow")
-	ErrWrongType  = errors.New("wrong type")
-)
-
-type entryType int
-
-const (
-	stringType entryType = iota
-	listType
-)
-
-type entry struct {
-	typ  entryType
-	data any
-}
-
-func newStringEntry(s string) *entry {
-	return &entry{typ: stringType, data: s}
-}
-
-func (e *entry) String() (string, error) {
-	if e.typ != stringType {
-		return "", ErrWrongType
-	}
-	return e.data.(string), nil
-}
 
 type KV struct {
 	mu      sync.RWMutex
@@ -260,4 +230,110 @@ func (s *KV) Cleanup(interval time.Duration, stop <-chan struct{}) {
 			return
 		}
 	}
+}
+
+func (s *KV) LPush(key string, values ...string) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		s.data[key] = newListEntry(values)
+		return len(values), nil
+	}
+
+	n, err := e.PushLeft(values...)
+	if err != nil {
+		return 0, err
+	}
+	return n, nil
+}
+
+func (s *KV) RPush(key string, values ...string) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		s.data[key] = newListEntry(values)
+		return len(values), nil
+	}
+
+	n, err := e.PushRight(values...)
+	if err != nil {
+		return 0, err
+	}
+	return n, nil
+}
+
+func (s *KV) LPop(key string) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		return "", nil
+	}
+
+	popped, err := e.PopLeft()
+	if err != nil {
+		return "", err
+	}
+
+	if len(e.data.([]string)) == 0 {
+		delete(s.data, key)
+	}
+	return popped, nil
+}
+
+func (s *KV) RPop(key string) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		return "", nil
+	}
+
+	popped, err := e.PopRight()
+	if err != nil {
+		return "", err
+	}
+
+	if len(e.data.([]string)) == 0 {
+		delete(s.data, key)
+	}
+	return popped, nil
+}
+
+func (s *KV) LLen(key string) (int, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		return 0, nil
+	}
+
+	n, err := e.LLen()
+	if err != nil {
+		return 0, err
+	}
+	return n, nil
+}
+
+func (s *KV) LRange(key string, start, stop int) ([]string, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		return []string{}, nil
+	}
+
+	l, err := e.LRange(start, stop)
+	if err != nil {
+		return []string{}, err
+	}
+	return l, nil
 }
