@@ -5,6 +5,7 @@ type entryType int
 const (
 	stringType entryType = iota
 	listType
+	setType
 )
 
 type entry struct {
@@ -18,6 +19,14 @@ func newStringEntry(s string) *entry {
 
 func newListEntry(l []string) *entry {
 	return &entry{typ: listType, data: l}
+}
+
+func newSetEntry(members ...string) *entry {
+	s := make(map[string]struct{})
+	for _, m := range members {
+		s[m] = struct{}{}
+	}
+	return &entry{typ: setType, data: s}
 }
 
 func (e *entry) String() (string, error) {
@@ -124,4 +133,67 @@ func (e *entry) LRange(start, stop int) ([]string, error) {
 		stopAdj = len(l) - 1
 	}
 	return l[startAdj : stopAdj+1], nil
+}
+
+func (e *entry) SAdd(members ...string) (int, error) {
+	if e.typ != setType {
+		return 0, ErrWrongType
+	}
+	set := e.data.(map[string]struct{})
+	cnt := 0
+	for _, m := range members {
+		if _, exists := set[m]; !exists {
+			set[m] = struct{}{}
+			cnt++
+		}
+	}
+	return cnt, nil
+}
+
+func (e *entry) SMembers() ([]string, error) {
+	if e.typ != setType {
+		return []string{}, ErrWrongType
+	}
+
+	set := e.data.(map[string]struct{})
+	members := make([]string, 0, len(set))
+	for member := range set {
+		members = append(members, member)
+	}
+	return members, nil
+}
+
+func (e *entry) SIsMember(member string) (bool, error) {
+	if e.typ != setType {
+		return false, ErrWrongType
+	}
+
+	set := e.data.(map[string]struct{})
+	_, exists := set[member]
+	if !exists {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (e *entry) SRem(members ...string) (int, error) {
+	if e.typ != setType {
+		return 0, ErrWrongType
+	}
+	cnt := 0
+	set := e.data.(map[string]struct{})
+	for _, m := range members {
+		if _, exists := set[m]; exists {
+			delete(set, m)
+			cnt++
+		}
+	}
+	return cnt, nil
+}
+
+func (e *entry) SLen() (int, error) {
+	if e.typ != setType {
+		return 0, ErrWrongType
+	}
+	return len(e.data.(map[string]struct{})), nil
 }
