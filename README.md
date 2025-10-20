@@ -44,6 +44,7 @@ Steps for bulding my Redis:
 10. Added Engine for Command Registery and Dispatcher
 11. Added commands INCR, DECR, INCRBY, DECRBY, APPEND
 11. Added list structure: LPUSH, RPUSH, LPOP, RPOP, LLEN, LRANGE
+12. Added set structure: SADD, SREM, SMEMBERS, SISMEMBER
 
 ## Task Plan
 
@@ -79,10 +80,10 @@ Steps for bulding my Redis:
 |  | LLEN | ✅ | Return list length |
 |  | LRANGE | ✅ | Return element range |
 |  | LPOP / RPOP | ✅ | Remove and return element |
-| **Data Structures – Sets** | SADD | ☐ | Add members |
-|  | SMEMBERS | ☐ | Get all members |
-|  | SISMEMBER | ☐ | Check membership |
-|  | SREM | ☐ | Remove members |
+| **Data Structures – Sets** | SADD | ✅ | Add members |
+|  | SMEMBERS | ✅ | Get all members |
+|  | SISMEMBER | ✅ | Check membership |
+|  | SREM | ✅ | Remove members |
 | **Data Structures – Hashes** | HSET / HGET | ☐ | Add hash support |
 |  | HGETALL | ☐ | Return all fields |
 | **Transactions** | INCR | ☐ | Atomic increment |
