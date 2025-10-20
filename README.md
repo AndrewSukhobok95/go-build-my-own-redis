@@ -11,23 +11,6 @@ In sections below, I described:
 - Task plan — roadmap features and improvements
 - Testing setup
 
-## How I did this learning project
-
-Prompts for guiding ChatGPT:
-
-> I am building Redis clone in Go as an excercise to learn the Go language (already did a tour of go). Here is the plan that I created with ChatGPT and the code that I implemented so far:
-...
-Review the plan, check if there is something that would be halpful to add.
-If not, let's continue with next task:
-...
-
-> I am building Redis clone in Go as an excercise to learn the Go language (already did a tour of go). Here is the plan that I created with ChatGPT and the code that I implemented so far:
-...
-Let's continue with next task according to the plan:
-...
-
-> I want you to shortly describe the purpose of the mechanics I will be implementing now and how it is used in Redis. Then I want you to explain the expected result and give me idea about which functions and structures I should implement, if it's not clear for the task itself. Don't give me ready code, just explain the idea of what I should achieve.
-
 
 ## Log of the steps I followed
 
@@ -45,6 +28,23 @@ Steps for bulding my Redis:
 11. Added commands INCR, DECR, INCRBY, DECRBY, APPEND
 11. Added list structure: LPUSH, RPUSH, LPOP, RPOP, LLEN, LRANGE
 12. Added set structure: SADD, SREM, SMEMBERS, SISMEMBER
+
+## Prompts
+
+Prompts for guiding ChatGPT:
+
+> I am building Redis clone in Go as an excercise to learn the Go language (already did a tour of go). Here is the plan that I created with ChatGPT and the code that I implemented so far:
+...
+Review the plan, check if there is something that would be halpful to add.
+If not, let's continue with next task:
+...
+
+> I am building Redis clone in Go as an excercise to learn the Go language (already did a tour of go). Here is the plan that I created with ChatGPT and the code that I implemented so far:
+...
+Let's continue with next task according to the plan:
+...
+
+> I want you to shortly describe the purpose of the mechanics I will be implementing now and how it is used in Redis. Then I want you to explain the expected result and give me idea about which functions and structures I should implement, if it's not clear for the task itself. Don't give me ready code, just explain the idea of what I should achieve.
 
 ## Task Plan
 
