@@ -84,8 +84,8 @@ Let's continue with next task according to the plan:
 |  | SMEMBERS | ✅ | Get all members |
 |  | SISMEMBER | ✅ | Check membership |
 |  | SREM | ✅ | Remove members |
-| **Data Structures – Hashes** | HSET / HGET | ☐ | Add hash support |
-|  | HGETALL | ☐ | Return all fields |
+| **Data Structures – Hashes** | HSET / HGET | ✅ | Add hash support |
+|  | HGETALL | ✅ | Return all fields |
 | **Transactions** | INCR | ☐ | Atomic increment |
 |  | DECR | ☐ | Atomic decrement |
 |  | MULTI / EXEC / DISCARD | ☐ | Transaction support |

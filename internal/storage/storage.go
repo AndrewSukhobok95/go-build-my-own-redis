@@ -113,6 +113,8 @@ func (s *KV) Type(key string) string {
 		return "string"
 	case listType:
 		return "list"
+	case hashType:
+		return "hash"
 	default:
 		return "none"
 	}
@@ -409,4 +411,62 @@ func (s *KV) SRem(key string, members ...string) (int, error) {
 		delete(s.data, key)
 	}
 	return cnt, nil
+}
+
+func (s *KV) HSet(key, field, value string) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		e = newHashEntry()
+		s.data[key] = e
+	}
+
+	isNew, err := e.HSet(field, value)
+	if err != nil {
+		return 0, err
+	}
+	if isNew {
+		return 1, nil
+	}
+	return 0, nil
+}
+
+func (s *KV) HGet(key, field string) (string, bool, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		return "", false, nil
+	}
+
+	value, fieldExists, err := e.HGet(field)
+	if err != nil {
+		return "", false, err
+	}
+
+	return value, fieldExists, nil
+}
+
+func (s *KV) HGetAll(key string) ([]string, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		return []string{}, nil
+	}
+
+	m, err := e.HGetAll()
+	if err != nil {
+		return []string{}, err
+	}
+
+	flatHashSet := make([]string, 0, len(m)*2)
+	for k, v := range m {
+		flatHashSet = append(flatHashSet, k, v)
+	}
+	return flatHashSet, nil
 }
