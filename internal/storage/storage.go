@@ -113,6 +113,8 @@ func (s *KV) Type(key string) string {
 		return "string"
 	case listType:
 		return "list"
+	case hashType:
+		return "hash"
 	default:
 		return "none"
 	}

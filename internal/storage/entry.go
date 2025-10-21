@@ -31,8 +31,8 @@ func newSetEntry(members ...string) *entry {
 }
 
 func newHashEntry() *entry {
-	m := make(map[string]struct{})
-	return &entry{typ: setType, data: m}
+	m := make(map[string]string)
+	return &entry{typ: hashType, data: m}
 }
 
 func (e *entry) String() (string, error) {
