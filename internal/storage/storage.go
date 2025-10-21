@@ -337,3 +337,76 @@ func (s *KV) LRange(key string, start, stop int) ([]string, error) {
 	}
 	return l, nil
 }
+
+func (s *KV) SAdd(key string, members ...string) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		e = newSetEntry()
+		s.data[key] = e
+	}
+	cnt, err := e.SAdd(members...)
+	if err != nil {
+		return 0, err
+	}
+	return cnt, nil
+}
+
+func (s *KV) SMembers(key string) ([]string, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		return []string{}, nil
+	}
+
+	members, err := e.SMembers()
+	if err != nil {
+		return []string{}, err
+	}
+	return members, nil
+}
+
+func (s *KV) SIsMember(key string, member string) (bool, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		return false, nil
+	}
+
+	isMember, err := e.SIsMember(member)
+	if err != nil {
+		return false, err
+	}
+
+	return isMember, nil
+}
+
+func (s *KV) SRem(key string, members ...string) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	e, exists := s.data[key]
+	if !exists {
+		return 0, nil
+	}
+
+	cnt, err := e.SRem(members...)
+	if err != nil {
+		return 0, err
+	}
+
+	newSize, err := e.SLen()
+	if err != nil {
+		return 0, err
+	}
+	if newSize == 0 {
+		delete(s.data, key)
+	}
+	return cnt, nil
+}
