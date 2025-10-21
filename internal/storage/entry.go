@@ -6,6 +6,7 @@ const (
 	stringType entryType = iota
 	listType
 	setType
+	hashType
 )
 
 type entry struct {
@@ -27,6 +28,11 @@ func newSetEntry(members ...string) *entry {
 		s[m] = struct{}{}
 	}
 	return &entry{typ: setType, data: s}
+}
+
+func newHashEntry() *entry {
+	m := make(map[string]struct{})
+	return &entry{typ: setType, data: m}
 }
 
 func (e *entry) String() (string, error) {
@@ -196,4 +202,30 @@ func (e *entry) SLen() (int, error) {
 		return 0, ErrWrongType
 	}
 	return len(e.data.(map[string]struct{})), nil
+}
+
+func (e *entry) HSet(field, value string) (bool, error) {
+	if e.typ != hashType {
+		return false, ErrWrongType
+	}
+	m := e.data.(map[string]string)
+	_, exists := m[field]
+	m[field] = value
+	return !exists, nil
+}
+
+func (e *entry) HGet(field string) (string, bool, error) {
+	if e.typ != hashType {
+		return "", false, ErrWrongType
+	}
+	m := e.data.(map[string]string)
+	value, exists := m[field]
+	return value, exists, nil
+}
+
+func (e *entry) HGetAll() (map[string]string, error) {
+	if e.typ != hashType {
+		return map[string]string{}, ErrWrongType
+	}
+	return e.data.(map[string]string), nil
 }
