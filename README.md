@@ -86,9 +86,9 @@ Let's continue with next task according to the plan:
 |  | SREM | ✅ | Remove members |
 | **Data Structures – Hashes** | HSET / HGET | ✅ | Add hash support |
 |  | HGETALL | ✅ | Return all fields |
-| **Transactions** | INCR | ☐ | Atomic increment |
-|  | DECR | ☐ | Atomic decrement |
-|  | MULTI / EXEC / DISCARD | ☐ | Transaction support |
+| **Transactions** | INCR | ✅ | Atomic increment |
+|  | DECR | ✅ | Atomic decrement |
+|  | MULTI / EXEC / DISCARD | ✅ | Transaction support |
 | **Persistence (AOF)** | Write AOF on write commands | ☐ | Append-only log |
 |  | Replay AOF on startup | ☐ | Load data back |
 |  | AOF rewrite (compaction) | ☐ | Reduce file size |

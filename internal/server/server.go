@@ -18,6 +18,8 @@ func handleConnection(conn net.Conn, storage *storage.KV, shutdown <-chan struct
 	defer conn.Close()
 	fmt.Println("Accepted connection from", conn.RemoteAddr())
 
+	ctx := engine.NewCommandContext(storage)
+
 	respReader := resp.NewReader(conn)
 	respWriter := resp.NewWriter(conn)
 	for {
@@ -49,7 +51,6 @@ func handleConnection(conn net.Conn, storage *storage.KV, shutdown <-chan struct
 		}
 
 		fmt.Printf("Received: %s %s\n", cmd, strings.Join(args, " "))
-		ctx := engine.NewCommandContext(storage)
 		answerValue := engine.DispatchCommand(ctx, cmd, args)
 		respWriter.Write(answerValue)
 	}

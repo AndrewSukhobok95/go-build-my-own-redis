@@ -21,5 +21,12 @@ func DispatchCommand(ctx *CommandContext, cmdName string, args []string) resp.Va
 	if cmd.arity < 0 && len(args) < -cmd.arity {
 		return resp.NewErrorValue(fmt.Sprintf("ERR wrong number of arguments for '%s' command", cmdName))
 	}
+
+	if ctx.InTransaction() && cmdName != "MULTI" && cmdName != "EXEC" && cmdName != "DISCARD" {
+		ctx.EnqueueCommand(func() resp.Value {
+			return cmd.handler(ctx, args)
+		})
+		return resp.NewStringValue("QUEUED")
+	}
 	return cmd.handler(ctx, args)
 }
