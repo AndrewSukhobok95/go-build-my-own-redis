@@ -28,6 +28,8 @@ Steps for bulding my Redis:
 11. Added commands INCR, DECR, INCRBY, DECRBY, APPEND
 11. Added list structure: LPUSH, RPUSH, LPOP, RPOP, LLEN, LRANGE
 12. Added set structure: SADD, SREM, SMEMBERS, SISMEMBER
+13. Added hash structure: HSET, HGET, HGETALL
+14. Added transactions: MULTI, EXEC, DISCARD
 
 ## Prompts
 
