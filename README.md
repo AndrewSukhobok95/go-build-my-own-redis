@@ -46,6 +46,11 @@ If not, let's continue with next task:
 Let's continue with next task according to the plan:
 ...
 
+> I am building Redis clone in Go as an excercise to learn the Go language (already did a tour of go). Here is the plan that I created with ChatGPT and the signatures from code that I implemented so far:
+...
+Let's continue with next task according to the plan:
+...
+
 > I want you to shortly describe the purpose of the mechanics I will be implementing now and how it is used in Redis. Then I want you to explain the expected result and give me idea about which functions and structures I should implement, if it's not clear for the task itself. Don't give me ready code, just explain the idea of what I should achieve.
 
 ## Task Plan
