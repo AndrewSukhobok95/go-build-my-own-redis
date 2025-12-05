@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/persistence"
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/resp"
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/storage"
 )
@@ -9,14 +10,16 @@ type CommandContext struct {
 	storage       *storage.KV
 	inTransaction bool
 	queued        []func() resp.Value
+	aof           *persistence.AOF
 	inReplay      bool
 }
 
-func NewCommandContext(storage *storage.KV) *CommandContext {
+func NewCommandContext(storage *storage.KV, aof *persistence.AOF) *CommandContext {
 	return &CommandContext{
 		storage:       storage,
 		inTransaction: false,
 		queued:        make([]func() resp.Value, 0),
+		aof:           aof,
 		inReplay:      false,
 	}
 }

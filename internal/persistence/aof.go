@@ -6,9 +6,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/engine"
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/resp"
-	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/storage"
 )
 
 type AOF struct {
@@ -74,7 +72,13 @@ func (aof *AOF) Close() error {
 	return nil
 }
 
-func (aof *AOF) Load(storage *storage.KV) error {
+type ReplayCommand struct {
+	Name string
+	Args []string
+}
+
+func (aof *AOF) Load(cmdCh chan<- ReplayCommand) error {
+	defer close(cmdCh)
 	aof.mu.Lock()
 	defer aof.mu.Unlock()
 
@@ -85,9 +89,7 @@ func (aof *AOF) Load(storage *storage.KV) error {
 	case err != nil:
 		return err
 	}
-
-	ctx := engine.NewCommandContext(storage)
-	ctx.StartReplay()
+	defer f.Close()
 
 	respReader := resp.NewReader(f)
 	for {
@@ -102,6 +104,6 @@ func (aof *AOF) Load(storage *storage.KV) error {
 		if err != nil {
 			return err
 		}
-		engine.DispatchCommand(ctx, cmdName, args)
+		cmdCh <- ReplayCommand{Name: cmdName, Args: args}
 	}
 }
