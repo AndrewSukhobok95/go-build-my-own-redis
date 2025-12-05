@@ -135,10 +135,10 @@ func handleLRange(ctx *engine.CommandContext, args []string) resp.Value {
 }
 
 func init() {
-	engine.RegisterCommand("LPUSH", -2, handleLPush)
-	engine.RegisterCommand("RPUSH", -2, handleRPush)
-	engine.RegisterCommand("LPOP", 1, handleLPop)
-	engine.RegisterCommand("RPOP", 1, handleRPop)
-	engine.RegisterCommand("LLEN", 1, handleLLen)
-	engine.RegisterCommand("LRANGE", 3, handleLRange)
+	engine.RegisterCommand("LPUSH", -2, true, handleLPush)
+	engine.RegisterCommand("RPUSH", -2, true, handleRPush)
+	engine.RegisterCommand("LPOP", 1, true, handleLPop)
+	engine.RegisterCommand("RPOP", 1, true, handleRPop)
+	engine.RegisterCommand("LLEN", 1, false, handleLLen)
+	engine.RegisterCommand("LRANGE", 3, false, handleLRange)
 }

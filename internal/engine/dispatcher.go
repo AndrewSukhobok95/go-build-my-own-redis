@@ -23,7 +23,7 @@ func DispatchCommand(ctx *CommandContext, cmdName string, args []string) resp.Va
 		return resp.NewErrorValue(fmt.Sprintf("ERR wrong number of arguments for '%s' command", cmdName))
 	}
 
-	if !ctx.InReplay() {
+	if !ctx.InReplay() && cmd.isWrite {
 		log.Println("Appened to AOF")
 		if err := ctx.aof.Append(cmdName, args); err != nil {
 			log.Println("AOF append failed:", err)

@@ -29,6 +29,6 @@ func handleFlushdb(ctx *engine.CommandContext, args []string) resp.Value {
 }
 
 func init() {
-	engine.RegisterCommand("KEYS", 1, handleKeys)
-	engine.RegisterCommand("FLUSHDB", 0, handleFlushdb)
+	engine.RegisterCommand("KEYS", 1, false, handleKeys)
+	engine.RegisterCommand("FLUSHDB", 0, true, handleFlushdb)
 }

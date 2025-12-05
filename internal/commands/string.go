@@ -147,16 +147,16 @@ func handleAppend(ctx *engine.CommandContext, args []string) resp.Value {
 }
 
 func init() {
-	engine.RegisterCommand("PING", 0, handlePing)
-	engine.RegisterCommand("ECHO", 1, handleEcho)
-	engine.RegisterCommand("SET", 2, handleSet)
-	engine.RegisterCommand("GET", 1, handleGet)
-	engine.RegisterCommand("DEL", -1, handleDel)
-	engine.RegisterCommand("TYPE", 1, handleType)
-	engine.RegisterCommand("EXISTS", -1, handleExists)
-	engine.RegisterCommand("INCR", 1, handleIncr)
-	engine.RegisterCommand("DECR", 1, handleDecr)
-	engine.RegisterCommand("INCRBY", 2, handleIncrBy)
-	engine.RegisterCommand("DECRBY", 2, handleDecrBy)
-	engine.RegisterCommand("APPEND", 2, handleAppend)
+	engine.RegisterCommand("PING", 0, false, handlePing)
+	engine.RegisterCommand("ECHO", 1, false, handleEcho)
+	engine.RegisterCommand("SET", 2, true, handleSet)
+	engine.RegisterCommand("GET", 1, false, handleGet)
+	engine.RegisterCommand("DEL", -1, true, handleDel)
+	engine.RegisterCommand("TYPE", 1, false, handleType)
+	engine.RegisterCommand("EXISTS", -1, false, handleExists)
+	engine.RegisterCommand("INCR", 1, true, handleIncr)
+	engine.RegisterCommand("DECR", 1, true, handleDecr)
+	engine.RegisterCommand("INCRBY", 2, true, handleIncrBy)
+	engine.RegisterCommand("DECRBY", 2, true, handleDecrBy)
+	engine.RegisterCommand("APPEND", 2, true, handleAppend)
 }

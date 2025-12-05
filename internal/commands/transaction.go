@@ -36,7 +36,7 @@ func handleDiscard(ctx *engine.CommandContext, args []string) resp.Value {
 }
 
 func init() {
-	engine.RegisterCommand("MULTI", 0, handleMulti)
-	engine.RegisterCommand("EXEC", 0, handleExec)
-	engine.RegisterCommand("DISCARD", 0, handleDiscard)
+	engine.RegisterCommand("MULTI", 0, false, handleMulti)
+	engine.RegisterCommand("EXEC", 0, false, handleExec)
+	engine.RegisterCommand("DISCARD", 0, false, handleDiscard)
 }

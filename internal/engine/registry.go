@@ -12,6 +12,7 @@ type CommandHandler func(ctx *CommandContext, args []string) resp.Value
 type Command struct {
 	name    string
 	arity   int
+	isWrite bool
 	handler CommandHandler
 }
 
@@ -21,7 +22,7 @@ func AllCommands() map[string]*Command {
 	return registry
 }
 
-func RegisterCommand(name string, arity int, handler CommandHandler) {
+func RegisterCommand(name string, arity int, isWrite bool, handler CommandHandler) {
 	name = strings.ToUpper(name)
 	if name == "" {
 		panic("command name cannot be empty")
@@ -32,7 +33,7 @@ func RegisterCommand(name string, arity int, handler CommandHandler) {
 	if _, exists := registry[name]; exists {
 		panic(fmt.Sprintf("command %q already registered", name))
 	}
-	registry[name] = &Command{name: name, arity: arity, handler: handler}
+	registry[name] = &Command{name: name, arity: arity, isWrite: isWrite, handler: handler}
 }
 
 func GetCommand(name string) (*Command, bool) {
