@@ -79,6 +79,7 @@ func (s *Server) Start() {
 	}
 
 	s.ReplayAOF()
+	go s.FlushAOF()
 	go s.storage.Cleanup(s.cleanupInterval, s.shutdown)
 
 	for {
@@ -111,6 +112,7 @@ func (s *Server) Shutdown() {
 }
 
 func (s *Server) ReplayAOF() {
+	log.Println("Starting Replay AOF")
 	ctx := engine.NewCommandContext(s.storage, s.aof)
 	ctx.StartReplay()
 
@@ -122,6 +124,21 @@ func (s *Server) ReplayAOF() {
 		}
 	}()
 	for cmd := range cmdCh {
+		log.Printf("Dispatching %v %v", cmd.Name, cmd.Args)
 		engine.DispatchCommand(ctx, cmd.Name, cmd.Args)
+	}
+	log.Println("Replay AOF finished")
+}
+
+func (s *Server) FlushAOF() {
+	for {
+		select {
+		case <-s.shutdown:
+			return
+		case <-time.After(time.Second):
+			if err := s.aof.Flush(); err != nil {
+				log.Println("Flush error:", err)
+			}
+		}
 	}
 }

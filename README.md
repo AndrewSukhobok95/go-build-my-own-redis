@@ -129,6 +129,11 @@ Let's continue with next task according to the plan:
 
 ## Testing
 
+Start a server:
+```
+go run ./cmd/myredis
+```
+
 Test using simple `echo` and `printf` (following the expected Redis syntax):
 ```
 echo -e "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n" | nc localhost 6380

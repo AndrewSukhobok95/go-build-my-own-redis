@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/resp"
@@ -23,7 +24,10 @@ func DispatchCommand(ctx *CommandContext, cmdName string, args []string) resp.Va
 	}
 
 	if !ctx.InReplay() {
-		ctx.aof.Append(cmdName, args)
+		log.Println("Appened to AOF")
+		if err := ctx.aof.Append(cmdName, args); err != nil {
+			log.Println("AOF append failed:", err)
+		}
 	}
 
 	if ctx.InTransaction() && cmdName != "MULTI" && cmdName != "EXEC" && cmdName != "DISCARD" {
