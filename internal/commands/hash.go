@@ -68,7 +68,7 @@ func handleHGetAll(ctx *engine.CommandContext, args []string) resp.Value {
 }
 
 func init() {
-	engine.RegisterCommand("HSET", 3, handleHSet)
-	engine.RegisterCommand("HGET", 2, handleHGet)
-	engine.RegisterCommand("HGETALL", 1, handleHGetAll)
+	engine.RegisterCommand("HSET", 3, true, handleHSet)
+	engine.RegisterCommand("HGET", 2, false, handleHGet)
+	engine.RegisterCommand("HGETALL", 1, false, handleHGetAll)
 }

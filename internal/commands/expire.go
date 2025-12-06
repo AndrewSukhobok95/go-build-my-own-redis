@@ -63,8 +63,8 @@ func wrapHandlePTTL(ctx *engine.CommandContext, args []string) resp.Value {
 }
 
 func init() {
-	engine.RegisterCommand("EXPIRE", 2, wrapHandleExpire)
-	engine.RegisterCommand("PEXPIRE", 2, wrapHandlePExpire)
-	engine.RegisterCommand("TTL", 1, wrapHandleTTL)
-	engine.RegisterCommand("PTTL", 1, wrapHandlePTTL)
+	engine.RegisterCommand("EXPIRE", 2, true, wrapHandleExpire)
+	engine.RegisterCommand("PEXPIRE", 2, true, wrapHandlePExpire)
+	engine.RegisterCommand("TTL", 1, false, wrapHandleTTL)
+	engine.RegisterCommand("PTTL", 1, false, wrapHandlePTTL)
 }

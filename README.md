@@ -30,6 +30,7 @@ Steps for bulding my Redis:
 12. Added set structure: SADD, SREM, SMEMBERS, SISMEMBER
 13. Added hash structure: HSET, HGET, HGETALL
 14. Added transactions: MULTI, EXEC, DISCARD
+15. Added AOF persistance
 
 ## Prompts
 
@@ -96,8 +97,8 @@ Let's continue with next task according to the plan:
 | **Transactions** | INCR | ✅ | Atomic increment |
 |  | DECR | ✅ | Atomic decrement |
 |  | MULTI / EXEC / DISCARD | ✅ | Transaction support |
-| **Persistence (AOF)** | Write AOF on write commands | ☐ | Append-only log |
-|  | Replay AOF on startup | ☐ | Load data back |
+| **Persistence (AOF)** | Write AOF on write commands | ✅ | Append-only log |
+|  | Replay AOF on startup | ✅ | Load data back |
 |  | AOF rewrite (compaction) | ☐ | Reduce file size |
 | **Persistence (RDB)** | Save snapshot to file | ☐ | Serialize `Storage` |
 |  | Save expiry info | ☐ | Store TTLs |
@@ -127,6 +128,11 @@ Let's continue with next task according to the plan:
 |  | CLI client in Go | ☐ | Mini `redis-cli` clone |
 
 ## Testing
+
+Start a server:
+```
+go run ./cmd/myredis
+```
 
 Test using simple `echo` and `printf` (following the expected Redis syntax):
 ```

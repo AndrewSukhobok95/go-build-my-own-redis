@@ -8,6 +8,7 @@ import (
 	"time"
 
 	_ "github.com/AndrewSukhobok95/go-build-my-own-redis/internal/commands"
+	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/persistence"
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/server"
 	"github.com/AndrewSukhobok95/go-build-my-own-redis/internal/storage"
 )
@@ -19,7 +20,11 @@ func main() {
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
 	storage := storage.NewKV()
-	server := server.New("6380", storage, time.Duration(5)*time.Second)
+	aof, err := persistence.NewAOF("appendonly.aof")
+	if err != nil {
+		panic(fmt.Sprintf("Can't open AOF file: %v", err))
+	}
+	server := server.New("6380", storage, aof, time.Duration(5)*time.Second)
 
 	go server.Start()
 

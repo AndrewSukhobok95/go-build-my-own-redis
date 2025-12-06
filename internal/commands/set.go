@@ -89,8 +89,8 @@ func handleSIsMember(ctx *engine.CommandContext, args []string) resp.Value {
 }
 
 func init() {
-	engine.RegisterCommand("SADD", -2, handleSAdd)
-	engine.RegisterCommand("SREM", -2, handleSRem)
-	engine.RegisterCommand("SMEMBERS", 1, handleSMembers)
-	engine.RegisterCommand("SISMEMBER", 2, handleSIsMember)
+	engine.RegisterCommand("SADD", -2, true, handleSAdd)
+	engine.RegisterCommand("SREM", -2, true, handleSRem)
+	engine.RegisterCommand("SMEMBERS", 1, false, handleSMembers)
+	engine.RegisterCommand("SISMEMBER", 2, false, handleSIsMember)
 }
